@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <ul id="locations-found" class="list-group" data-bind="foreach: filteredBusinesses">
-                        <li class="list-group-item" data-bind="text: $data.name"></li>
+                        <li class="list-group-item" data-bind="text: $data.name, click: $parent.selectBusiness"></li>
                     </ul>
                 </div>
             </div>

@@ -12,6 +12,10 @@ let Business = function(data){
     self.latitude = data.coordinates.latitude;
     self.longitude = data.coordinates.longitude;
     self.category = data.categories[0].title;
+    self.marker = null;
+    self.setMarker = function(marker){
+        self.marker = marker; 
+    }
 }
 
 let ViewModel = function(){
@@ -21,25 +25,24 @@ let ViewModel = function(){
     self.filters = ko.observableArray([]);
     self.selectedFilter = ko.observable();
 
-    // Filter businesses by user selection. 
+    // Filter businesses by dropdown user selection. 
     self.selectedFilter.subscribe(function(newValue){
-        // Get all businesses.  
-        self.filteredBusinesses(self.businesses.slice(0));
-
         if(self.filteredBusinesses().length != 0)
-        {
+        {        // Get all businesses.  
+            self.filteredBusinesses(self.businesses.slice(0));
+            toggleMarkers(self.filteredBusinesses, false);
+
             // Remove businesses that dont match the selected food type. 
             self.filteredBusinesses.remove(function(item){
                 return item.category != newValue;
             });
             
-            clearMarkers();
-            createMarkers(self.filteredBusinesses);
+            toggleMarkers(self.filteredBusinesses, true);
         }
 
     }, self);
 
-    // Get businesses from Yelp. 
+    // Get businesses from Yelp when search button is clicked. 
     self.getBusinesses = function(){
         loc = $("#location").val();
         resetPage(self, false);
@@ -61,10 +64,11 @@ let ViewModel = function(){
             
                 if(!data.error){
                     for (let i = 0; i < businesses.length; i++) {
+                        // Initialize business.
                         business = new Business(businesses[i]);
-            
+                        business.setMarker(createMarker(business));   
+
                         self.businesses.push(business);
-                        createMarker(business);
             
                         // No duplicate filtering items. 
                         if(self.filters.indexOf(business.category) == -1){
@@ -75,20 +79,21 @@ let ViewModel = function(){
                     self.filteredBusinesses(self.businesses.slice(0));
                 }
                 else{
-                    console.log("ERROR retrieving data from YELP.");
+                    alert("Error retrieving YELP data.");
                 }
             }).fail(function(response){
-                console.log("ERROR connecting to server.");
+                alert("Error connecting to the local server.");
             });
-
             zoomToArea(loc);
         }
     };
 
-    self.selectBusiness = function(){
-
+    // Animate marker when corresponding list item is clicked. 
+    self.selectBusiness = function(business){
+        google.maps.event.trigger(business.marker, "click");
     }
 
+    // Reset the page on clear button press. 
     self.clearBusinesses = function(){
         resetPage(self, true);
     };
@@ -98,7 +103,6 @@ ko.applyBindings(new ViewModel());
 
 // Google Maps code 
 let map; 
-let markers = [];
 let infoWindow; 
 
 function initMap(){
@@ -124,9 +128,6 @@ function zoomToArea(address){
             map.setCenter(results[0].geometry.location);
             map.setZoom(10);
         }
-        else{
-            alert("Location not found.");
-        }
     });
 }
 
@@ -137,33 +138,41 @@ function createMarker(business){
         lng: business.longitude
     };
 
+    // Create marker. 
     let marker = new google.maps.Marker({
         position: position,
         title: business.name,
         animation: google.maps.Animation.DROP
     });
 
-    markers.push(marker);
     marker.setMap(map);
 
     marker.addListener("click", function(){
         populateInfoWindow(marker, business);
         toggleBounce(marker);
     });
-}
 
-// Create map markers for the passed in list. 
-function createMarkers(businessList){
-    for (let i = 0; i < businessList().length; i++) {
-        createMarker(businessList()[i]);
-    }
+    return marker;
 }
 
 // Toggles animation. 
 function toggleBounce(marker){
     marker.setAnimation(google.maps.Animation.BOUNCE);
-    // Togle animation off after 2 bounces. 
+    // Togle animation off after approximately 2 bounces. 
     setTimeout(function(){marker.setAnimation(null)}, 750);
+}
+
+// Toggles markers of businesseds passed in on/off. 
+function toggleMarkers(businesses, toggleOn)
+{
+    for (let i = 0; i < businesses().length; i++) {        
+        if(toggleOn){
+            businesses()[i].marker.setMap(map);        
+        }
+        else{
+            businesses()[i].marker.setMap(null);
+        }
+    }
 }
 
 // Populate info window with business data. 
@@ -177,7 +186,13 @@ function populateInfoWindow(marker, business){
         });
     }
 
-    infoWindow.setContent("<div>" + marker.title + "</div>");    
+    let content = "<div><b>" + business.name + "</b><br>" +
+    business.phone + "<br>" +
+    business.address.street + "<br>" +
+    business.address.city+ "<br>" +
+    "<a href=\"https://www.yelp.com/\"><img src=\"img/yelp.png\"></a></div>";
+
+    infoWindow.setContent(content);    
     infoWindow.open(map, marker);
 }
 
@@ -189,17 +204,10 @@ function resetPage(self, clearText)
         $("#location").val("");
     }
 
+    toggleMarkers(self.filteredBusinesses, false); 
+
     // Clear arrays. 
     self.filters.removeAll();
     self.filteredBusinesses.removeAll();
-    self.businesses.length = 0;
-    clearMarkers();  
-}
-
-// Clears markers from the map. 
-function clearMarkers(){
-    for (let i = 0; i < markers.length; i++) {
-        markers[i].setMap(null);        
-    }
-    markers.length = 0; 
+    self.businesses.length = 0;     
 }
