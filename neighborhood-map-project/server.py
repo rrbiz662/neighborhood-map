@@ -1,12 +1,10 @@
 #!usr/bin/env python2
 import json
 import requests
-import sys
 import os
 from flask import Flask, request, make_response
 from flask_cors import cross_origin
-from urllib2 import HTTPError
-from urllib import quote, urlencode
+from urllib import quote
 
 
 app = Flask(__name__)
@@ -19,7 +17,7 @@ API_KEY = "zboWotd5QomCFouN96e-YRf7deALxng825rC-GpXWbeoTGZmaOYtCy" \
 API_HOST = "https://api.yelp.com"
 SEARCH_PATH = "/v3/businesses/search"
 SEARCH_LIMIT = 5
-# About a 6 mile radius. 
+# About a 6 mile radius.
 RADIUS = 10000
 
 

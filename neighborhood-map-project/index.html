@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Neighborhood Map</title>
+</head>
+<body>
+    <!--Navbar-->
+    <div id="navbar">
+        <nav class="navbar navbar-expand-xl navbar-dark bg-dark">
+                <a class="navbar-brand" href="#">Neighborhood Map</a>
+                <button id="menu-btn" type="button" class="btn btn-light ml-auto" data-bind="click: toggleSidebar">Menu</button>
+        </nav>
+    </div>
+    <!--Sidebar-->
+    <div id="sidebar" class="sidenav bg-dark">
+        <form id="location-form" class="form-group">
+            <label for="location">Location:</label>
+            <input type="text" name="location" id="location" class="form-control" placeholder="Austin, Tx">
+            <button id="submit-btn" class="btn btn-light mt-3" type="submit"  data-bind="click: getBusinesses">Search</button>
+            <button id="clear-btn" class="btn btn-light mt-3" type="button" data-bind="click: clearBusinesses">Clear</button>
+        </form>
+        <div>
+            <select name="filter" id="filter" class="btn" data-bind="options: filters, value: selectedFilter"></select>
+        </div>
+        <div>
+            <ul id="locations-found" class="list-group mt-3" data-bind="foreach: filteredBusinesses">
+                <li class="list-group-item" data-bind="text: $data.name, click: $parent.selectBusiness"></li>
+            </ul>
+        </div>
+    </div>
+    <!--Map Area-->
+    <div class="container">
+        <div class="row">
+            <div class="col-2"></div>
+            <div id="map" class="col-8">
+                Error loading map data.
+            </div>
+            <div class="col-2"></div>
+        </div>
+    </div>
+    <!--Javascript-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiL7IP2RLYF30I6aKjcgd1GqyhAIRovy0&callback=initMap"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
