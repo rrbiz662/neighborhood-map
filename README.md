@@ -24,12 +24,14 @@ In order to run the project:
 3) Start the VM by using the command `vagrant up`.
 4) Connect to the VM using the command `vagrant ssh`.
 5) Navigate to the directory in the VM where the python script is located using the command `cd`.
-6) Run the python script using the command `python server.py`.
-7) Open the `index.html` file in the preferred web browser.
+6) Run the command `sudo pip install flask-cors` to install the `CORS` enabling module.
+7) Run the python script using the command `python server.py`.
+8) Open the `index.html` file in the preferred web browser.
 
 ## Built with
 * `Python 2.7.14`
 * `Flask 0.9`
+* `Flask-CORS 3.0.4`
 * `jQuery 3.3.1`
 * `KnockoutJS 3.4.2`
 * `Bootstrap 4.1.0`
